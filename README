@@ -1,7 +1,11 @@
 How to run:
 
-python splashscreen.py butler.png
+python splashscreen.py butler.png cloud.png
 
 How to terminate:
 
 type ^c
+
+Note:
+1. the butler can be dragged with its message
+2. click the message and it will dismiss
