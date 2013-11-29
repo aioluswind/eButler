@@ -4,9 +4,18 @@ import signal, sys
 def signal_handler(signal, frame):
 	sys.exit(0)
 
+basepos = QtCore.QPoint(400, 200)
+relativepos = QtCore.QPoint(-200, -150)
+
+object1name = 'butler'
+object2name = 'cloud'
+
+splashs = []
+
 class SplashScreen(QtGui.QWidget):
- 	def __init__(self, pixmap):
+ 	def __init__(self, pixmap, name):
 		QtGui.QWidget.__init__(self)
+		self._name = name
 		self._pixmap = pixmap
 		self._message = QtCore.QString()
 		self._color = QtGui.QColor.black
@@ -42,28 +51,48 @@ class SplashScreen(QtGui.QWidget):
 		painter.drawText(textbox, self._alignment, self._message)
 
 	def mousePressEvent(self, event):
-		self._mousePressPos = None
-		if event.button() == QtCore.Qt.LeftButton:
-			self._mousePressPos = event.globalPos()
-			self._originalPos = self.pos()
+		if self._name == object1name:
+			self._mousePressPos = None
+			if event.button() == QtCore.Qt.LeftButton:
+				self._mousePressPos = event.globalPos()
+				self._originalPos = self.pos()
+		elif self._name == object2name:
+			self.hide()
 	
 	def mouseMoveEvent(self, event):
-		globalPos = event.globalPos()
-		diff = globalPos - self._mousePressPos
-		self.move(self._originalPos + diff)
+		if self._name == object1name:
+			globalPos = event.globalPos()
+			diff = globalPos - self._mousePressPos
+			# move object1 and object2
+			self.move(self._originalPos + diff)
+			splashs[1].move(self.pos() + relativepos)
 
-def show_splash(path):
+def show_splash(path, path2):
 	image = QtGui.QPixmap(path)
-	splash = SplashScreen(image)
+	image2 = QtGui.QPixmap(path2)
+	splash = SplashScreen(image, object1name)
+	splash2 = SplashScreen(image2, object2name)
 	font = QtGui.QFont(splash.font())
 	font.setPointSize(font.pointSize() + 5)
 	splash.setFont(font)
+
+	splash2.show()
 	splash.show()
+	splash.move(basepos)
+	splash2.move(basepos + relativepos)
+	splash2.showMessage(splash2.tr('Hello World!!'), QtCore.Qt.AlignCenter)
+
+	splashs.append(splash)
+	splashs.append(splash2)
+
 	QtGui.QApplication.processEvents()
+	
 	while True:
 		QtGui.QApplication.processEvents()
 
 if __name__ == '__main__':
 
 	app = QtGui.QApplication(sys.argv)
-	show_splash(sys.argv[1])
+	# draw a butler
+	show_splash(sys.argv[1], sys.argv[2])
+
